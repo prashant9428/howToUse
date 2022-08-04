@@ -6,12 +6,10 @@ module.exports = {
         return new Promise(function (resolve,reject){
 
             var options = {
-                method:"post",
-                uri: `https://uq2d2dncmaq5zxzoqzqobygwsq0gcywx.lambda-url.ap-south-1.on.aws/`,
+                uri: `http://localhost:3001/logger`,
                 headers: {
                     'user-agent': 'node.js',
                 },
-                body:"hii",
                 json: true // Automatically parses the JSON string in the response
             };
              

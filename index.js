@@ -1,50 +1,79 @@
 const express = require("express");
 const server = express();
 const cors = require('cors');
+const {appName, databaseConfig, isRateLimitEnabled, rateLimitConfig} = require('./config/env')
+const { initLogger } = require('@byjus-orders/byjus-logger');
+const {initRateLimit} = require('@prashant/nauth')
 
-
-const { initLogger } = require('@prashant/byjus-logger');
-
-
-
-const { contextMiddleware, correlationMiddleware, logger } = initLogger({
-    pretty: false,
-    //    targetFile: "./logs/pino3.log",
-    redact:[],
-    env: "development",
-},{
-    service: "ums",
-});
-
-// set levels
-logger.setLevel("debug");
-const pasteBinRouter = require("./routes/router");
-
-// const sequelize = connect();
-
-server.use(express.json());
-
-server.use(cors());
-
-server.use(correlationMiddleware());
-server.use(contextMiddleware(logger));
-server.use('/logger', pasteBinRouter);
-// logger.error(new Error("something went wrong"))
-server.listen(3003, () => {
-    try {
-    logger.info({'message':"log"},'server is running on port 3000');
-    throw new Error("something went wrong")
-    } catch (error) {
-    logger.error(error)
-    }
+const setExpress = async function(){
+    const { contextMiddleware, correlationMiddleware, logger:log } = initLogger({
+        pretty: true,
+        //    targetFile: "./logs/pino3.log",
+        redact:[],
+        env: "development",
+    },{
+        service: "ums",
+    });
     
-})
+    // set levels
+    //log.setLevel("debug");
+    const pasteBinRouter = require("./routes/router");
+    
+    // const sequelize = connect();
+    
+    server.use(express.json());
+    
+    server.use(cors());
+    server.use(correlationMiddleware());
+    server.use(contextMiddleware(log));
+    
+    
+    server.use('/logger',await initRateLimit(
+        {
+            databaseConfig,
+            rateLimitConfig,
+            appName,
+            isRateLimitEnabled
+        }, 
+        {
+            onError: (error)=>{
+                logger.error({ method: "setupExpress" }, `error: ${error.message || "Uncaught Error"}`);
+            },
+            onExit: (error)=>{
+                logger.error({ method: "setupExpress" }, `error: ${error.message || "Uncaught Error"}`);
+                // process.exit();  // disabeling for initial release
+            }
+        }
+      ));
+    
+    server.use('/logger', pasteBinRouter);
+    
+    
+    
+    
+    // logger.error(new Error("something went wrong"))
+    // server.listen(3000, () => {
+    //     try {
+    //     log.info({'message':"log"},'server is running on port 3000');
+       
+    //     } catch (error) {
+    //     log.error("this is the error")
+    //     }
+        
+    // })
+    
+    
+    // server.use((err, req, res, next) => {
+    //     res.status(err.statusCode || 500).json({
+    //         status: "error-global",
+    //         message: err.message || "Something went wrong"
+    //     })
+    // })
+
+    return server
+}
 
 
-server.use((err, req, res, next) => {
-    logger.error(err);
-    res.status(err.statusCode || 500).json({
-        status: "error-global",
-        message: err.message || "Something went wrong"
-    })
-})
+module.exports = {
+    setExpress
+}

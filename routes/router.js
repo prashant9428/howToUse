@@ -1,22 +1,21 @@
 const router = require("express-promise-router")();
 const {getReleaseBody,sendRequest} = require("../utils")
-const logger  = require('@prashant/byjus-logger')
+const logger  = require('@byjus-orders/byjus-logger')
 const child = logger.child({ module: 'router'},{redact:['MIX.IN']})
 // const hpropagate = require("hpropagate")()
 
 router.get("/", async (req, res,next) => {
   
-    child.info({MIX: {IN: true}},'i am the log');
-    child.debug("into the function")
+    // child.info({MIX: {IN: true}},'i am the log');
+    // child.debug("into the function")
 
     try {
         //await getReleaseBody()
-        await getReleaseBody()
+       // await getReleaseBody()
         return res.status(200).json({
             status: "success"
         });
     } catch (err) {
-        child.error(err);
         return res.status(err.statusCode || 500).json({
             status: "error",
             message: err.message || "Something went wrong"
