@@ -17,7 +17,8 @@ const setExpress = async function(){
     
     // set levels
     //log.setLevel("debug");
-    const pasteBinRouter = require("./routes/router");
+    const org = require("./service/org");
+    const user = require("./service/user")
     
     // const sequelize = connect();
     
@@ -27,26 +28,26 @@ const setExpress = async function(){
     server.use(correlationMiddleware());
     server.use(contextMiddleware(log));
     
+    // server.use('/logger',await initRateLimit(
+    //     {
+    //         databaseConfig,
+    //         rateLimitConfig,
+    //         appName,
+    //         isRateLimitEnabled
+    //     }, 
+    //     {
+    //         onError: (error)=>{
+    //             logger.error({ method: "setupExpress" }, `error: ${error.message || "Uncaught Error"}`);
+    //         },
+    //         onExit: (error)=>{
+    //             logger.error({ method: "setupExpress" }, `error: ${error.message || "Uncaught Error"}`);
+    //             // process.exit();  // disabeling for initial release
+    //         }
+    //     }
+    //   ));
     
-    server.use('/logger',await initRateLimit(
-        {
-            databaseConfig,
-            rateLimitConfig,
-            appName,
-            isRateLimitEnabled
-        }, 
-        {
-            onError: (error)=>{
-                logger.error({ method: "setupExpress" }, `error: ${error.message || "Uncaught Error"}`);
-            },
-            onExit: (error)=>{
-                logger.error({ method: "setupExpress" }, `error: ${error.message || "Uncaught Error"}`);
-                // process.exit();  // disabeling for initial release
-            }
-        }
-      ));
-    
-    server.use('/logger', pasteBinRouter);
+    server.use('/org', org);
+    server.use('/user',user)
     
     
     
