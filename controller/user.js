@@ -1,4 +1,4 @@
-const {sequelize} = require("../config/connection")
+const {sequelize} = require("../config/connection");
 const User = require("../model/userModel")(sequelize);
 
 module.exports.createUser = async (userData) => {
@@ -13,7 +13,9 @@ module.exports.createUser = async (userData) => {
 
 module.exports.getUserByOrg = async (id) => {
   try {
-    return await User.findAll()
+   const res = await User.findOne({where:{name:'ravi'}})
+  // console.log("result",res)
+   return res
   } catch (error) {
     console.log('error',error)
     throw new Error(error)

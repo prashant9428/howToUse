@@ -32,34 +32,46 @@ const sequelize = new Sequelize(database, null, null, {
     define: {
         freezeTableName: true,
         timestamps: true,
-        hooks: {
+        hooks:{
+            // beforeFindAfterExpandIncludeAll(options){
+            //     console.log("beforeFindAfterExpandIncludeAll",options)
+            // }
+            // beforeCreate(Model,Options){
+            //     console.log("model",Model)
+            //     Model.setDataValue('name','ppppp')
+            //     console.log("Options",Options)
 
-            // beforeValidate(model){
-            //     console.log('model',model)
             // },
-            // beforeQuery(queryOptions,AbstractQuery){
-            //     console.log('queryOptions',queryOptions)
-            //     console.log("AbstractQuery",AbstractQuery)
+            // beforeUpdate(Model,Options){
+            //     console.log("model",Model)
+            //     console.log("Options",Options) 
             // },
-            
-            beforeFind(options) {
-                console.log('query', options)
+            // beforeDestroy(Model,Options){
 
-                if (options?.where) {
-                    options.where['orgId'] = 2
-                } else {
-                    options['where'] = { "orgId": 2}
-                }
-
-                console.log("query", options)
-
-            }
+            // }
         }
     },
 
+
 });
 
-//sequelize.addHook('beforeFind')
+
+sequelize.addHook('beforeFind',function(options){
+   // console.log("model", model)
+  //const model = new this
+  const model = this
+   if(model.rawAttributes.hasOwnProperty("orgId")){
+       if(options?.where){
+           options.where['orgId'] = "2"
+       }else{
+
+           options['where'] = {'orgId':'2'}
+       }
+   }
+
+   console.log("options",options)
+
+})
 
 async function checkConnection() {
     try {
